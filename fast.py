@@ -122,9 +122,9 @@ def fast_2(image_path: np.ndarray, t: float, n: int, rot: int) -> np.ndarray:
 
     print(len(x))
     print(len(y))
-    #xN = x +[0,1,2,3,3,3,2,1,0,-1,-2,-3,-3,-3,-2,1]
-    #yN = y +[3,3,2,1,0,-1,-2,-3,-3,-3,-2,-1,0,1,2,3]
-    #imgN = img.flatten()[xN*img.shape(1)+yN]
+    xN = x +[0,1,2,3,3,3,2,1,0,-1,-2,-3,-3,-3,-2,1]
+    yN = y +[3,3,2,1,0,-1,-2,-3,-3,-3,-2,-1,0,1,2,3]
+    imgN = img.flatten()[xN*img.shape(1)+yN]
     
 
 
