@@ -5,6 +5,8 @@ import scipy.ndimage as ndi
 import scipy.signal as sig
 from skimage.io import imread,imshow
 from skimage.color import rgb2gray
+from fast import *
+from harris import *
 import cv2
 
 def fast_for_matching(image_path: str, t: float, n: int, rot: int) -> np.ndarray:
