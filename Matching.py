@@ -39,7 +39,7 @@ def fast_for_matching(image_path: str, t: float, n: int, rot: int) -> np.ndarray
 
 from scipy.spatial.distance import cdist
 
-def bloc_descriptor2(img_path1, img_path2, block_size, threshold):
+def bloc_descriptor2(img_path1, img_path2, block_size, threshold,metric="correlation"):
   
     # récupérer les points d'intérêt (img 1 et 2)
     vect_interet_1 = fast_for_matching(img_path1, 0.09, 12, 0) 
@@ -73,27 +73,34 @@ def bloc_descriptor2(img_path1, img_path2, block_size, threshold):
                 intvect2.append(img_gray2[x+j][y+k])
         vecteurs_de_bloc_2.append(intvect2)
 
-    # Suppression des mauvais match : appariement croisé pour chaque pt d'intérêt
-    dist_matrix = cdist(vecteurs_de_bloc_1, vecteurs_de_bloc_2, metric='correlation')
+    #on calcul le minimum des distances pour chaques bloc de l'image 1 par rapport à tous les blocs de l'images 2
+    dist_matrix = cdist(vecteurs_de_bloc_1, vecteurs_de_bloc_2, metric=metric)
     min_dist1 = np.argmin(dist_matrix, axis=1)
     min_dist2 = np.argmin(dist_matrix, axis=0)
 
-    # Cross-matching to ensure that d(ai, bj) = min(d(ai, bk)) and d(bj, ai) = min(d(bj, ak))
+    if metric != "correlation":
+        threshold = 1
+    # cross matching pour s'assurer que d(ai, bj) = min(d(ai, bk)) and d(bj, ai) = min(d(bj, ak))
     appariement = []
     for i in range(len(min_dist1)):
         if min_dist2[min_dist1[i]] == i and dist_matrix[i, min_dist1[i]] < threshold:
             appariement.append((vect_interet_1[i], vect_interet_2[min_dist1[i]]))
+    if metric != "correlation":
+        appariement_filtered = appariement
 
-        # Removing points with large vector differences
-    vectors_1 = np.array([vecteurs_de_bloc_1[vect_interet_1.index(match[0])] for match in appariement])
-    vectors_2 = np.array([vecteurs_de_bloc_2[vect_interet_2.index(match[1])] for match in appariement])
-    vector_diff = np.linalg.norm(vectors_1 - vectors_2, axis=1)
-    mean_diff = np.mean(vector_diff)
-    std_diff = np.std(vector_diff)
-    appariement_filtered = [appariement[i] for i in range(len(appariement)) if vector_diff[i] < mean_diff + std_diff]
+  
+    else:
+            # on enlève les appariement qui sont fondamentalement trop diférent des autres (abbérations)
+        vectors_1 = np.array([vecteurs_de_bloc_1[vect_interet_1.index(match[0])] for match in appariement])
+        vectors_2 = np.array([vecteurs_de_bloc_2[vect_interet_2.index(match[1])] for match in appariement])
+        vector_diff = np.linalg.norm(vectors_1 - vectors_2, axis=1)
+        mean_diff = np.mean(vector_diff)
+        std_diff = np.std(vector_diff)
+        appariement_filtered = [appariement[i] for i in range(len(appariement)) if vector_diff[i] < mean_diff + std_diff]
 
-    
-    # Extracting matching points for image 1 and image 2
+   
+
+    # on récupère finalement nos matching points
     matching_points_1 = [match[0] for match in appariement_filtered]
     matching_points_2 = [match[1] for match in appariement_filtered]
 
