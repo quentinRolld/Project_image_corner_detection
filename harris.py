@@ -130,7 +130,7 @@ def detection_harris_gauss_optimized(img_path, rot,window_size=3,k=0.04,sigma=2)
 
 """ Fonction de détection de Harris avec une Hessienne """
 
-def detection_harris_hessienne(img_path, rot):
+def detection_hessienne(img_path, rot):
     img = imread(img_path)
     if rot != 0:
         img = ndi.rotate(img, rot, reshape=False)
