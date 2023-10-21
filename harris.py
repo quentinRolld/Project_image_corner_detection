@@ -38,9 +38,10 @@ def detection_harris_rectangle(img_path,rot,window_size=3,k=0.02):
     det_M = Ix2_sum * Iy2_sum - IxIy_sum ** 2  #on calcule le determinant et la trace de la matrice M à chaque pixel
     trace_M = Ix2_sum + Iy2_sum
 
-    C= det_M - k * trace_M ** 2
+    C = det_M - k * trace_M ** 2
 
-    threshold = 0.01 * harris_response.max() # on seuil la réponse pour avoir les points d'intérêts
+    #threshold = 0.01 * harris_response.max() # on seuil la réponse pour avoir les points d'intérêts
+    threshold = 0.01 * C.max() # on seuil la réponse pour avoir les points d'intérêts
     for x in range(height):
         for y in range(width):
             if C[x, y] > threshold:
@@ -120,7 +121,7 @@ def detection_harris_gauss_optimized(img_path, rot,window_size=3,k=0.04,sigma=2)
     deter = (Ix2gauss * Iy2gauss) - (IxIygauss ** 2)
     trace = Ix2gauss + Iy2gauss
     C = deter - k * (trace ** 2)  # calcul du critère pour le seuillage des points d'intérêts
-    threshold = 0.01 * C()
+    threshold = 0.01 * C.max()
     img_copy_for_corners[C > threshold] = [255, 0, 0]  # on met en rouge les points d'intérêts
     count = np.sum(C > threshold)
 
